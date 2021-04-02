@@ -1,6 +1,6 @@
 const express = require('express');
-const { randomBytes } = require('crypto');
 const bodyParser = require('body-parser');
+const { randomBytes } = require('crypto');
 const cors = require('cors');
 const axios = require('axios');
 
@@ -16,7 +16,7 @@ const commentsByPostId = {};
 // Get comments
 app.get('/posts/:id/comments', (req, res) => {
   // Return comments of Post ID, If post ID is undefined, return empty array
-  res.send(commentsByPostId[req.params.id]) || [];
+  res.send(commentsByPostId[req.params.id] || []);
 });
 
 // Craete a new comment
@@ -45,13 +45,12 @@ app.post('/posts/:id/comments', async (req, res) => {
 });
 
 app.post('/events', async (req, res) => {
-  console.log('Received Event', req.body.type);
+  console.log('Event Received:', req.body.type);
 
   const { type, data } = req.body;
 
   if (type === 'CommentModerated') {
-    const { postid, id, status } = data;
-
+    const { postId, id, status, content } = data;
     // Get comments associated with post ID
     const comments = commentsByPostId[postId];
 
@@ -60,19 +59,18 @@ app.post('/events', async (req, res) => {
     const comment = comments.find(comment => {
       return comment.id === id;
     });
-
     comment.status = status;
-  }
 
-  await axios.post('http://localhost:4005/events', {
-    type: 'CommentUpdated',
-    data: {
-      id,
-      content,
-      postId,
-      status,
-    },
-  });
+    await axios.post('http://localhost:4005/events', {
+      type: 'CommentUpdated',
+      data: {
+        id,
+        status,
+        postId,
+        content,
+      },
+    });
+  }
 
   res.send({});
 });

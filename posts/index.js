@@ -1,8 +1,8 @@
 const express = require('express');
-const { randomBytes } = require('crypto');
 const bodyParser = require('body-parser');
+const { randomBytes } = require('crypto');
 const cors = require('cors');
-const { default: axios } = require('axios');
+const axios = require('axios');
 
 const app = express();
 app.use(bodyParser.json());
@@ -20,7 +20,6 @@ app.get('/posts', (req, res) => {
 
 // Craete new post
 app.post('/posts', async (req, res) => {
-  // random ID
   const id = randomBytes(4).toString('hex');
   const { title } = req.body;
 
